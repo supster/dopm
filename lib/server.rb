@@ -1,10 +1,7 @@
 require 'socket'
+require_relative './indexer'
 
 class Server
-  def initialize
-    @data_store = {}
-  end
-
   def start(port)
     @server = TCPServer.new(port)
 
@@ -12,7 +9,7 @@ class Server
       Thread.new(@server.accept) do |socket|
         message = socket.gets
 
-        if message == 'PING'
+        if message == "PING\n"
           socket.puts "PONG\n"
         else
           socket.puts response(message)
@@ -21,26 +18,8 @@ class Server
     end
   end
 
-  COMMANDS = ['INDEX', 'REMOVE', 'QUERY']
-
   def response(message)
-    command, package, dependencies = message.chomp.split('|')
-
-    if !COMMANDS.include?(command)
-      status = "ERROR\n"
-    else
-      if !dependencies.nil?
-        dependencies.split(',').each do |dependency|
-          if !@data_store.has_key?(dependency)
-            status = "FAIL\n"
-            break
-          end
-        end
-      else
-        status = "OK\n"
-      end
-    end
-
-    status
+    package_indexer = Indexer.new
+    status = package_indexer.perform(message)
   end
 end

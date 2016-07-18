@@ -22,25 +22,7 @@ class ServerTest < Minitest::Test
     end
 
     client = Client.new
-    assert_equal "PONG\n", client.request('PING')
+    assert_equal "PONG\n", client.request("PING\n")
     thr.kill
-  end
-
-  def test_response_error
-    server = Server.new
-    message = "FOO|error|\n"
-    assert_equal "ERROR\n", server.response(message)
-  end
-
-  def test_response_ok
-    server = Server.new
-    message = "INDEX|ceylon|\n"
-    assert_equal "OK\n", server.response(message)
-  end
-
-  def test_fail
-    server = Server.new
-    message = "INDEX|ceylon|gmp\n"
-    assert_equal "FAIL\n", server.response(message)
   end
 end

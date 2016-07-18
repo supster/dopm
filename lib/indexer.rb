@@ -9,22 +9,30 @@ class Indexer
   end
 
   def perform(message)
-    command, package, dependencies = message.chomp.split('|')
+    return ERROR if message_error?(message)
 
-    return ERROR if !valid?(command, package)
+    command = message.chomp.split('|')
 
-    if command == 'INDEX'
-      status = index(package, dependencies)
-    elsif command == 'REMOVE'
-      status = remove(package)
-    elsif command == 'QUERY'
-      status = query(package)
+    return ERROR if command_error?(command)
+
+    if command[0] == 'INDEX'
+      status = index(command[1], command[2])
+    elsif command[0] == 'REMOVE'
+      status = remove(command[1])
+    elsif command[0] == 'QUERY'
+      status = query(command[1])
+    else
+      status = ERROR
     end
     status
   end
 
-  def valid?(command, package)
-    COMMANDS.include?(command) && !package.nil?
+  def message_error?(message)
+    message.nil? || message.count('|') != 2
+  end
+
+  def command_error?(command)
+    !COMMANDS.include?(command[0]) || command[1].nil?
   end
 
   def index(package, dependencies)

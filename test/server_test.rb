@@ -16,13 +16,17 @@ class Client
 end
 
 class ServerTest < Minitest::Test
-  def test_ping_pong
-    thr = Thread.new do
-      Server.new.start(PORT)
-    end
+  @@server_thread = Thread.new do
+    @server = Server.new.start(PORT)
+  end
 
+  def test_simple_request
     client = Client.new
-    assert_equal "PONG\n", client.request("PING\n")
-    thr.kill
+    assert_equal "OK\n", client.request("INDEX|foo|\n")
+  end
+
+  def test_error
+    client = Client.new
+    assert_equal "ERROR\n", client.request("I|a|b")
   end
 end

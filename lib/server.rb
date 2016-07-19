@@ -2,10 +2,13 @@ require 'socket'
 require_relative './indexer'
 
 class Server
+  def initialize(package_indexer)
+    @package_indexer = package_indexer
+  end
+
   def start(port)
     puts "running on #{port}"
     server = TCPServer.new(port)
-    @package_indexer = Indexer.new
 
     mutex = Mutex.new
     loop do

@@ -16,17 +16,15 @@ class Client
 end
 
 class ServerTest < Minitest::Test
-  @@server_thread = Thread.new do
-    @server = Server.new.start(PORT)
-  end
-
   def test_simple_request
+    indexer = MiniTest::Mock.new
+    indexer.expect(:perform, "OK\n", ["INDEX|foo|\n"])
+
+    Thread.new do
+      server = Server.new(indexer).start(PORT)
+    end
+
     client = Client.new
     assert_equal "OK\n", client.request("INDEX|foo|\n")
-  end
-
-  def test_error
-    client = Client.new
-    assert_equal "ERROR\n", client.request("I|a|b")
   end
 end

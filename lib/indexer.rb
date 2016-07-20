@@ -1,3 +1,5 @@
+require 'json'
+
 class Indexer
   COMMANDS = ['INDEX', 'REMOVE', 'QUERY']
   OK = "OK\n"
@@ -5,7 +7,7 @@ class Indexer
   ERROR = "ERROR\n"
 
   def initialize
-    @data_store = {}
+    @data_store = load_data_from_file
   end
 
   def perform(message)
@@ -41,7 +43,7 @@ class Indexer
       return FAIL unless packages_exist?(dependencies)
     end
 
-    @data_store[package] = dependencies
+    @data_store[package] = dependencies || ''
     OK
   end
 
@@ -66,6 +68,21 @@ class Indexer
       OK
     else
       FAIL
+    end
+  end
+
+  def load_data_from_file
+    begin
+      content = File.read('packages.txt')
+      JSON.parse(content) || {}
+    rescue StandardError
+      {}
+    end
+  end
+
+  def save_data_to_file
+    File.open('packages.txt', 'w') do |file|
+      file.write(@data_store.to_json)
     end
   end
 end

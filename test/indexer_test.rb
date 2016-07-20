@@ -3,10 +3,12 @@ require_relative '../lib/indexer'
 
 class IndexerTest < Minitest::Test
   def setup
-    @indexer = Indexer.new
+    File.stub :read, '{}' do
+      @indexer = Indexer.new
+    end
   end
 
-  def test_error_no_command
+  def test_error_wrong_command
     message = "FOO|error|\n"
     assert_equal Indexer::ERROR, @indexer.perform(message)
 
@@ -90,8 +92,26 @@ class IndexerTest < Minitest::Test
     assert_equal Indexer::OK, @indexer.perform(message)
   end
 
-  def test_faile_query
+  def test_fail_query
     message = "QUERY|baz|\n"
     assert_equal Indexer::FAIL, @indexer.perform(message)
+  end
+
+  def test_load_no_data_from_file
+    assert_equal Hash.new, @indexer.load_data_from_file
+  end
+
+  def test_load_some_data_from_file
+    File.stub :read, '{"foo":"","bar":["foo"]}' do
+      puts JSON.parse(File.read)
+      data = {"foo": nil, "bar": ["foo"]}
+      assert_equal data, @indexer.load_data_from_file
+    end
+  end
+
+  def test_save_data_to_file
+    File.stub :write, '{foo: ""}' do
+      assert @indexer.save_data_to_file
+    end
   end
 end

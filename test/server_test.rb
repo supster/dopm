@@ -2,10 +2,10 @@ require 'socket'
 require 'minitest/autorun'
 require_relative '../lib/server'
 
-class Client
-  HOST = 'localhost'
-  PORT = 8080
+HOST = 'localhost'
+PORT = 8080
 
+class Client
   def request(message)
     socket = TCPSocket.new(HOST, PORT)
     socket.puts message

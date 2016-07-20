@@ -102,10 +102,9 @@ class IndexerTest < Minitest::Test
   end
 
   def test_load_some_data_from_file
-    File.stub :read, '{"foo":"","bar":["foo"]}' do
-      puts JSON.parse(File.read)
-      data = {"foo": nil, "bar": ["foo"]}
-      assert_equal data, @indexer.load_data_from_file
+    data = '{"foo":"","bar":["foo"]}'
+    File.stub :read, data do
+      assert_equal JSON.parse(data), @indexer.load_data_from_file
     end
   end
 
